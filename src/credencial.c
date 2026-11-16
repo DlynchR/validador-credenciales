@@ -35,10 +35,25 @@ cred_resultado_t cred_autorizar(const char *uid,
                                 const char *permitidas[],
                                 size_t n)
 {
-    (void)uid;
-    (void)permitidas;
-    (void)n;
-    return CRED_ERR_FORMATO;
+    size_t indice;
+    int digito;
+
+    if (!cred_formato_valido(uid)) {
+        return CRED_ERR_FORMATO;
+    }
+    digito = cred_checksum(uid);
+    if (digito < 0 || uid[CRED_LONGITUD - 1u] - '0' != digito) {
+        return CRED_ERR_CHECKSUM;
+    }
+    if (permitidas == NULL) {
+        return CRED_ERR_NO_AUTORIZADA;
+    }
+    for (indice = 0u; indice < n; ++indice) {
+        if (permitidas[indice] != NULL && strcmp(uid, permitidas[indice]) == 0) {
+            return CRED_OK;
+        }
+    }
+    return CRED_ERR_NO_AUTORIZADA;
 }
 
 const char *cred_nombre_resultado(cred_resultado_t r)
