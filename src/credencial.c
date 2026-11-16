@@ -4,14 +4,31 @@
 
 int cred_formato_valido(const char *uid)
 {
-    (void)uid;
-    return 0;
+    size_t indice;
+
+    if (uid == NULL || strlen(uid) != CRED_LONGITUD) {
+        return 0;
+    }
+    for (indice = 0u; indice < CRED_LONGITUD; ++indice) {
+        if (uid[indice] < '0' || uid[indice] > '9') {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 int cred_checksum(const char *uid)
 {
-    (void)uid;
-    return -1;
+    size_t indice;
+    int suma = 0;
+
+    if (!cred_formato_valido(uid)) {
+        return -1;
+    }
+    for (indice = 0u; indice < CRED_LONGITUD - 1u; ++indice) {
+        suma += uid[indice] - '0';
+    }
+    return suma % 10;
 }
 
 cred_resultado_t cred_autorizar(const char *uid,
